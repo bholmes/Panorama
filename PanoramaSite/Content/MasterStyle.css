@@ -1,0 +1,87 @@
+﻿body
+{
+    min-width: 520px;
+    background-color: #164B69;
+}
+.page-header
+{
+    height: 40px;
+    margin-bottom: 15px;
+    padding-top: 10px;
+    color: #FFFFFF;
+}
+.project-name-header
+{
+    font-size: 30px;
+    font-family: cursive;
+    font-weight: bold;
+    float: left;
+    margin-right: 30px;
+}
+.page-top-menu-action
+{
+    font-size: 20px;
+    float: left;
+    padding-top: 15px;
+    text-decoration: underline;
+    cursor:pointer;
+}
+.page-top-menu-action:hover
+{
+    font-weight: bold;
+}
+.column-list
+{
+    
+}
+.column
+{
+    padding: 5px 10px 0px 10px;
+    width: 230px;
+    float: left;
+    background-color: #E3E3E3;
+    margin-right: 5px;
+    margin-left: 5px;
+    cursor:pointer;
+}
+.column-drop-area
+{
+    padding-bottom: 50px;
+}
+.column-header
+{
+    margin-bottom:5px;
+}
+.portlet
+{
+    margin-bottom: 5px;
+    cursor:pointer;
+}
+.portlet-header
+{
+    margin: 0.3em;
+    padding-bottom: 4px;
+    padding-left: 0.2em;
+    font-size: 14px;
+}
+.portlet-header .ui-icon
+{
+    float: right;
+}
+.portlet-content
+{
+    padding: 0.4em;
+    font-size: 12px;
+}
+
+.column-drop-area .ui-sortable-placeholder
+{
+    border: 1px dotted black;
+    visibility: visible !important;
+    height: 50px !important;
+}
+.column-drop-area .ui-sortable-placeholder *
+{
+    visibility: hidden;
+}
+
