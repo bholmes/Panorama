@@ -25,59 +25,62 @@ $(function () {
 });
 
 function refreshProjectView() {
-    var project = {
-        "lists": [
-            {
-                "id": 1, "title": "Ideas", cards: [
-                    { "id": 3, "title": "Drink" },
-                    { "id": 5, "title": "Play" },
-                ]
-            },
-            {
-                "id": 2, "title": "Todo", cards: [
-                    { "id": 1, "title": "Eat" },
-                    { "id": 2, "title": "Sleep" },
-                    { "id": 4, "title": "Work" },
-                ]
-            },
-            {
-                "id": 3, "title": "In Porgress", cards: [
-                ]
-            },
-            {
-                "id": 4, "title": "Completed", cards: [
-                ]
-            }]
-    };
+    //var project = {
+    //    "lists": [
+    //        {
+    //            "id": 1, "title": "Ideas", cards: [
+    //                { "id": 3, "title": "Drink" },
+    //                { "id": 5, "title": "Play" },
+    //            ]
+    //        },
+    //        {
+    //            "id": 2, "title": "Todo", cards: [
+    //                { "id": 1, "title": "Eat" },
+    //                { "id": 2, "title": "Sleep" },
+    //                { "id": 4, "title": "Work" },
+    //            ]
+    //        },
+    //        {
+    //            "id": 3, "title": "In Porgress", cards: [
+    //            ]
+    //        },
+    //        {
+    //            "id": 4, "title": "Completed", cards: [
+    //            ]
+    //        }]
+    //};
 
-    project.lists.forEach(function (list) {
-        var newColumn = $('<div class="column ui-widget ui-helper-clearfix ui-corner-all">');
-        newColumn.attr('id', 'column-' + list.id);
-        newColumn.disableSelection();
+    $.getJSON('servicestack/json/oneway/ProjectContents', function (project) {
 
-        var newColumnHeader = $('<div class="column-header">');
-        newColumnHeader.append(list.title);
+        project.Lists.forEach(function (list) {
+            var newColumn = $('<div class="column ui-widget ui-helper-clearfix ui-corner-all">');
+            newColumn.attr('id', 'column-' + list.Id);
+            newColumn.disableSelection();
 
-        var newColumnDropArea = $('<div class="column-drop-area">');
+            var newColumnHeader = $('<div class="column-header">');
+            newColumnHeader.append(list.Title);
 
-        list.cards.forEach(function (card) {
-            addCardToColumnDropArea(card, newColumnDropArea);
+            var newColumnDropArea = $('<div class="column-drop-area">');
+
+            list.Cards.forEach(function (card) {
+                addCardToColumnDropArea(card, newColumnDropArea);
+            });
+
+            newColumnDropArea.sortable({
+                connectWith: ".column-drop-area"
+            });
+
+            newColumn.append(newColumnHeader);
+            newColumn.append(newColumnDropArea);
+            $("#column-list").append(newColumn);
+            $("#column-list").sortable();
         });
-
-        newColumnDropArea.sortable({
-            connectWith: ".column-drop-area"
-        });
-
-        newColumn.append(newColumnHeader);
-        newColumn.append(newColumnDropArea);
-        $("#column-list").append(newColumn);
-        $("#column-list").sortable();
     });
 }
 
 function addCardToColumnDropArea(card, columnDropArea) {
     var newPortlet = $('<div class="portlet ui-widget ui-widget-content ui-helper-clearfix ui-corner-all">');
-    newPortlet.attr('id', 'portlet-' + card.id);
+    newPortlet.attr('id', 'portlet-' + card.Id);
 
     var newPortletHeader = $('<div class="portlet-header ui-widget-header ui-corner-all">');
 
@@ -88,7 +91,7 @@ function addCardToColumnDropArea(card, columnDropArea) {
     });
 
     newPortletHeader.append(newPortletHeaderSpan);
-    newPortletHeader.append(card.title);
+    newPortletHeader.append(card.Title);
 
     var newPortlerContent = $('<div class="portlet-content">');
     newPortlerContent.append('Lorem ipsum dolor sit amet, consectetuer adipiscing elit');
