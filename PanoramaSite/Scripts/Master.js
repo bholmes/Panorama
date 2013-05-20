@@ -65,9 +65,11 @@ function refreshProjectView() {
     //        }]
     //};
 
-    $.getJSON('servicestack/json/oneway/ProjectContents', function (project) {
+    $.getJSON('servicestack/projectcontents/1?format=json', function (project) {
 
         $("#column-list").empty();
+
+        $(".project-name-header").first().text(project.Title);
 
         project.Lists.forEach(function (list) {
             var newColumn = $('<div class="column ui-widget ui-helper-clearfix ui-corner-all">');
@@ -84,7 +86,24 @@ function refreshProjectView() {
             });
 
             newColumnDropArea.sortable({
-                connectWith: ".column-drop-area"
+                connectWith: ".column-drop-area",
+                update: function (event, ui) {
+                    if (this === ui.item.parent()[0]) {
+                        var columnId = parseInt($(this).parents(".column:first").attr('id').substr (7));
+                        var cardId = parseInt(ui.item.attr('id').substr (8));
+
+                        //alert('Move ' + cardId + ' to position ' + ui.item.index() + ' in list ' + columnId);
+                        var postData = { Project:1 , List: columnId, Card: cardId, Index: ui.item.index() };
+                        //$.post('servicestack/movecard', postData, null, 'json');
+                        jQuery.ajax({
+                            type: 'PUT',
+                            url: 'servicestack/movecard',
+                            data: postData,
+                            success: null,
+                            dataType: 'json'
+                        });
+                    }
+                }
             });
 
             newColumn.append(newColumnHeader);
