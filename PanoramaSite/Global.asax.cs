@@ -1,4 +1,5 @@
 ﻿using Funq;
+using MongoDB.Driver;
 using ServiceStack.ServiceHost;
 using ServiceStack.ServiceInterface;
 using ServiceStack.WebHost.Endpoints;
@@ -11,59 +12,36 @@ using System.Web.SessionState;
 
 namespace PanoramaSite
 {
-    [Route("/projectcontents")]
+    [Route("/projectcontents/{ProjectId}")]
     public class ProjectContents
     {
-        
+        public int ProjectId { get; set; }
     }
 
-    public class Project
+    [Route("/movecard")]
+    public class MoveCardArgs
     {
-        public List[] Lists { get; set; }
-    }
-
-    public class List
-    {
-        public int Id { get; set; }
-        public string Title { get; set; }
-        public Card[] Cards { get; set; }
-    }
-
-    public class Card
-    {
-        public int Id { get;set; }
-        public string Title { get;set; }
+        public int Project { get; set; }
+        public int List { get; set; }
+        public int Card { get; set; }
+        public int Index { get; set; }
     }
 
     public class ProjectService : Service
     {
         public object Get(ProjectContents projectContents)
         {
-            return new Project { 
-                Lists = new List [] {
-                    new List {
-                        Id=1, Title="Ideas", Cards= new Card [] {
-                            new Card {Id=3, Title="Drink"},
-                            new Card {Id=5, Title="Play"}
-                        }
-                    },
-                    new List {
-                        Id=2, Title="Todo", Cards=new Card [] {
-                            new Card {Id=1, Title="Eat"},
-                            new Card {Id=2, Title="Sleep"},
-                            new Card {Id=4, Title="Work"}
-                        }
-                    },
-                    new List{
-                        Id=3, Title="In Progress", Cards=new Card [] {
-                        }
-                    },
-                    new List{
-                        Id=4, Title="Completed", Cards=new Card [] {
-                        }
-                    }
-                } 
-            };
+            MongoDBProjectDriver driver = new MongoDBProjectDriver();
+
+            return driver.GetProject(new Project { Id = projectContents.ProjectId });
+        }
+
+        public void Put(MoveCardArgs moveCardArgs)
+        {
+            MongoDBProjectDriver driver = new MongoDBProjectDriver();
+
+            driver.MoveCardToList(new Project { Id = moveCardArgs.Project }, 
+                new List { Id = moveCardArgs.List }, new Card { Id = moveCardArgs.Card}, moveCardArgs.Index);
         }
     }
 
