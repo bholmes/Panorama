@@ -13,7 +13,6 @@ $(function () {
     });
 
     $("#refresh-lists-action").click(function () {
-        $("#column-list").empty();
         refreshProjectView();
     });
 
@@ -24,7 +23,23 @@ $(function () {
     refreshProjectView();
 });
 
+function storeCollapseList() {
+    var cardCollapseList = [];
+    $(".portlet-header .ui-icon").each(function () {
+        var cardId = this.parentElement.parentElement.id;
+        if ($(this).hasClass('ui-icon-minusthick')) {
+            cardCollapseList[cardId] = false;
+        }
+        else {
+            cardCollapseList[cardId] = true;
+        }
+    });
+
+    return cardCollapseList;
+}
+
 function refreshProjectView() {
+    var collapseList = storeCollapseList();
     //var project = {
     //    "lists": [
     //        {
@@ -50,7 +65,11 @@ function refreshProjectView() {
     //        }]
     //};
 
-    $.getJSON('servicestack/json/oneway/ProjectContents', function (project) {
+    $.getJSON('servicestack/projectcontents/1?format=json', function (project) {
+
+        $("#column-list").empty();
+
+        $(".project-name-header").first().text(project.Title);
 
         project.Lists.forEach(function (list) {
             var newColumn = $('<div class="column ui-widget ui-helper-clearfix ui-corner-all">');
@@ -63,11 +82,28 @@ function refreshProjectView() {
             var newColumnDropArea = $('<div class="column-drop-area">');
 
             list.Cards.forEach(function (card) {
-                addCardToColumnDropArea(card, newColumnDropArea);
+                addCardToColumnDropArea(card, newColumnDropArea, collapseList);
             });
 
             newColumnDropArea.sortable({
-                connectWith: ".column-drop-area"
+                connectWith: ".column-drop-area",
+                update: function (event, ui) {
+                    if (this === ui.item.parent()[0]) {
+                        var columnId = parseInt($(this).parents(".column:first").attr('id').substr (7));
+                        var cardId = parseInt(ui.item.attr('id').substr (8));
+
+                        //alert('Move ' + cardId + ' to position ' + ui.item.index() + ' in list ' + columnId);
+                        var postData = { Project:1 , List: columnId, Card: cardId, Index: ui.item.index() };
+                        //$.post('servicestack/movecard', postData, null, 'json');
+                        jQuery.ajax({
+                            type: 'PUT',
+                            url: 'servicestack/movecard',
+                            data: postData,
+                            success: null,
+                            dataType: 'json'
+                        });
+                    }
+                }
             });
 
             newColumn.append(newColumnHeader);
@@ -78,13 +114,15 @@ function refreshProjectView() {
     });
 }
 
-function addCardToColumnDropArea(card, columnDropArea) {
+function addCardToColumnDropArea(card, columnDropArea, collapseList) {
     var newPortlet = $('<div class="portlet ui-widget ui-widget-content ui-helper-clearfix ui-corner-all">');
-    newPortlet.attr('id', 'portlet-' + card.Id);
+    var cardId = 'portlet-' + card.Id;
+    newPortlet.attr('id', cardId);
 
     var newPortletHeader = $('<div class="portlet-header ui-widget-header ui-corner-all">');
 
-    var newPortletHeaderSpan = $("<span class='ui-icon ui-icon-minusthick'></span>");
+    var newPortletHeaderSpan = $("<span class='ui-icon'></span>");
+
     newPortletHeaderSpan.click(function () {
         $(this).toggleClass("ui-icon-minusthick").toggleClass("ui-icon-plusthick");
         $(this).parents(".portlet:first").find(".portlet-content").toggle();
@@ -100,5 +138,13 @@ function addCardToColumnDropArea(card, columnDropArea) {
     newPortlet.append(newPortlerContent);
 
     columnDropArea.append(newPortlet);
+
+    if (collapseList[cardId]) {
+        newPortletHeaderSpan.addClass("ui-icon-plusthick");
+        newPortlerContent.hide();
+    }
+    else {
+        newPortletHeaderSpan.addClass("ui-icon-minusthick");
+    }
 }
 
