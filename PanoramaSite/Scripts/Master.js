@@ -94,7 +94,6 @@ function refreshProjectView() {
 
                         //alert('Move ' + cardId + ' to position ' + ui.item.index() + ' in list ' + columnId);
                         var postData = { Project:1 , List: columnId, Card: cardId, Index: ui.item.index() };
-                        //$.post('servicestack/movecard', postData, null, 'json');
                         jQuery.ajax({
                             type: 'PUT',
                             url: 'servicestack/movecard',
@@ -109,7 +108,23 @@ function refreshProjectView() {
             newColumn.append(newColumnHeader);
             newColumn.append(newColumnDropArea);
             $("#column-list").append(newColumn);
-            $("#column-list").sortable();
+            $("#column-list").sortable({
+                update: function (event, ui) {
+                    if (this === ui.item.parent()[0]) {
+                        var columnId = parseInt(ui.item.attr('id').substr(7));
+                        var postData = { Project: 1, List: columnId, Index: ui.item.index() };
+                        //alert('drop list ' + postData.List + ' at pos ' + postData.Index);
+                        jQuery.ajax({
+                            type: 'PUT',
+                            url: 'servicestack/movelist',
+                            data: postData,
+                            success: null,
+                            dataType: 'json'
+                        });
+
+                    }
+                }
+            });
         });
     });
 }

@@ -115,7 +115,7 @@ namespace PanoramaSite
             return _projects.FindOneAs<Project>(Query<Project>.EQ(p => p.Id, project.Id));
         }
 
-        internal void MoveCardToList(Project project, List list, Card card, int index)
+        public void MoveCardToList(Project project, List list, Card card, int index)
         {
             InitConnection();
 
@@ -137,6 +137,22 @@ namespace PanoramaSite
             }).First();
 
             foundProject.Lists.Find(li => li.Id == list.Id).Cards.Insert(index, foundCard);
+
+            _projects.Update(query, Update<Project>.Replace(foundProject));
+        }
+
+        public void MoveList(Project project, List list, int index)
+        {
+            InitConnection();
+
+            IMongoQuery query = Query<Project>.Where(p => p.Id == project.Id);
+            var foundProject = _projects.FindOneAs<Project>(query);
+
+            var foundList = foundProject.Lists.Where(li => li.Id == list.Id).First();
+
+            foundProject.Lists.Remove(foundList);
+
+            foundProject.Lists.Insert(index, foundList);
 
             _projects.Update(query, Update<Project>.Replace(foundProject));
         }
