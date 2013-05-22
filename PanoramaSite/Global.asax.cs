@@ -27,6 +27,14 @@ namespace PanoramaSite
         public int Index { get; set; }
     }
 
+    [Route("/movelist")]
+    public class MoveListArgs
+    {
+        public int Project { get; set; }
+        public int List { get; set; }
+        public int Index { get; set; }
+    }
+
     public class ProjectService : Service
     {
         public object Get(ProjectContents projectContents)
@@ -42,6 +50,14 @@ namespace PanoramaSite
 
             driver.MoveCardToList(new Project { Id = moveCardArgs.Project }, 
                 new List { Id = moveCardArgs.List }, new Card { Id = moveCardArgs.Card}, moveCardArgs.Index);
+        }
+
+        public void Put(MoveListArgs moveCardArgs)
+        {
+            MongoDBProjectDriver driver = new MongoDBProjectDriver();
+
+            driver.MoveList (new Project { Id = moveCardArgs.Project },
+                new List { Id = moveCardArgs.List }, moveCardArgs.Index);
         }
     }
 
