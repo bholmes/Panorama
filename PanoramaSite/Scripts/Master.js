@@ -1,5 +1,7 @@
 ﻿/// <reference path="jquery-1.6.4.js" />
 /// <reference path="jquery-ui-1.10.2.js" />
+/// <reference path="jquery.signalR-1.1.1.js" />
+/// <reference path="signalr/hubs" />
 
 
 $(function () {
@@ -21,6 +23,13 @@ $(function () {
     document.title = "Project Name";
 
     refreshProjectView();
+
+    hub = $.connection.projecthub;
+    hub.client.refresh_project = function (data) {
+        refreshProjectView();
+    };
+
+    $.connection.hub.start();
 });
 
 function storeCollapseList() {
