@@ -1,4 +1,6 @@
 ﻿using Funq;
+using Microsoft.AspNet.SignalR;
+using Microsoft.AspNet.SignalR.Hubs;
 using MongoDB.Driver;
 using ServiceStack.ServiceHost;
 using ServiceStack.ServiceInterface;
@@ -7,6 +9,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
+using System.Web.Routing;
 using System.Web.Security;
 using System.Web.SessionState;
 
@@ -50,15 +53,27 @@ namespace PanoramaSite
 
             driver.MoveCardToList(new Project { Id = moveCardArgs.Project }, 
                 new List { Id = moveCardArgs.List }, new Card { Id = moveCardArgs.Card}, moveCardArgs.Index);
+
+            var hub = GlobalHost.ConnectionManager.GetHubContext("projecthub");
+            hub.Clients.All.Invoke("refresh_project", moveCardArgs.Project);
         }
 
-        public void Put(MoveListArgs moveCardArgs)
+        public void Put(MoveListArgs moveListArgs)
         {
             MongoDBProjectDriver driver = new MongoDBProjectDriver();
 
-            driver.MoveList (new Project { Id = moveCardArgs.Project },
-                new List { Id = moveCardArgs.List }, moveCardArgs.Index);
+            driver.MoveList (new Project { Id = moveListArgs.Project },
+                new List { Id = moveListArgs.List }, moveListArgs.Index);
+
+            var hub = GlobalHost.ConnectionManager.GetHubContext("projecthub");
+            hub.Clients.All.Invoke("refresh_project", moveListArgs.Project);
         }
+    }
+
+    [HubName("projecthub")]
+    public class ProjectHub : Hub
+    {
+
     }
 
     public class Global : System.Web.HttpApplication
@@ -77,6 +92,7 @@ namespace PanoramaSite
         protected void Application_Start(object sender, EventArgs e)
         {
             new PanoramaAppHost().Init();
+            RouteTable.Routes.MapHubs();
         }
 
         protected void Session_Start(object sender, EventArgs e)
